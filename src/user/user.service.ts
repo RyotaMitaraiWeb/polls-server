@@ -45,9 +45,6 @@ export class UserService {
             }
         }
     }
-    findAll() {
-        return `This action returns all user`;
-    }
 
     async findUserById(id: number): Promise<User | null> {
         const user = await this.userRepository.findOne({
@@ -57,14 +54,6 @@ export class UserService {
         });
 
         return user;
-    }
-
-    update(id: number, updateUserDto: UpdateUserDto) {
-        return `This action updates a #${id} user`;
-    }
-
-    remove(id: number) {
-        return `This action removes a #${id} user`;
     }
 
     async generateToken(user: User) {
