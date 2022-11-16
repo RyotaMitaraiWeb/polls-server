@@ -16,6 +16,7 @@ describe('UserController', () => {
     const registerEndpoint = '/user/register';
     const loginEndpoint = '/user/login';
     const logoutEndpoint = '/user/logout';
+    const isLoggedInEndpoint = '/user/isLogged';
     let app: INestApplication;
 
     beforeEach(async () => {
@@ -177,7 +178,24 @@ describe('UserController', () => {
         const failedLogout = await request(app.getHttpServer()).delete(logoutEndpoint)
         .set('Authorization', token)
         .expect(HttpStatus.UNAUTHORIZED);
-    })
+    });
+
+    it('Successfully checks that the user is logged in', async () => {
+        const register: IUserBody = await request(app.getHttpServer()).post(registerEndpoint).send({
+            username: 'ryota55', // needs to be different from "ryota1" due to blacklist keeping track of JWT tokens during tests
+            password: '123456',
+        });
+
+        const token = register.body.accessToken;        
+        const status = await request(app.getHttpServer()).post(isLoggedInEndpoint)
+        .set('Authorization', token)
+        .expect(HttpStatus.OK);
+    });
+
+    it('Successfully checks that the user is NOT logged in', async () => {
+        const status = await request(app.getHttpServer()).post(isLoggedInEndpoint)
+        .expect(HttpStatus.UNAUTHORIZED);
+    });
 
     afterEach(async () => {
         await app.close();

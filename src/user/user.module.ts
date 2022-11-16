@@ -19,10 +19,13 @@ export class UserModule implements NestModule {
                 path: 'user/logout', method: RequestMethod.DELETE,
             })
             .apply(VerifyLackOfToken).forRoutes({
-                path: 'user/login', method: RequestMethod.POST
+                path: 'user/login', method: RequestMethod.POST,
             })
             .apply(VerifyLackOfToken).forRoutes({
-                path: 'user/register', method: RequestMethod.POST
+                path: 'user/register', method: RequestMethod.POST,
+            })
+            .apply(VerifyToken).forRoutes({
+                path: 'user/isLogged', method: RequestMethod.POST,
             })
     }
 }

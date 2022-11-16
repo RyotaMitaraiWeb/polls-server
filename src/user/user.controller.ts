@@ -1,13 +1,22 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Req, Res, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Post, Body, Delete, Req, Res, HttpStatus } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
 import { IRequest } from '../interfaces';
 import { Response } from 'express';
 
 @Controller('user')
 export class UserController {
     constructor(private readonly userService: UserService) { }
+
+    @Post('/isLogged')
+    async checkIfLogged(@Req() req: IRequest, @Res() res: Response) {
+        const user = req.user;
+        res.status(HttpStatus.OK).json({
+            username: user.username,
+            id: user.id,
+            statusCode: HttpStatus.OK
+        })
+    }
 
     @Post('/register')
     async create(@Res() res: Response, @Body() createUserDto: CreateUserDto) {
