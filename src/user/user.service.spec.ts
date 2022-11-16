@@ -43,4 +43,14 @@ describe('UserService', () => {
         const token = await service.generateToken(registeredUser);
         expect(token.length).toBeGreaterThan(10);
     });
+
+    it('findUserByUsername works', async () => {
+        user.username = 'ryota1';
+        user.password = '123456';
+
+        const registeredUser = await service.create(user);
+        const found = await service.findUserByUsername('ryota1');
+        expect(found.username).toBe('ryota1');
+        expect(found.id).toBe(1);
+    })
 });
