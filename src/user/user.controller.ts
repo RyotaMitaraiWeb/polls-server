@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Res, HttpStatus } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -16,7 +16,28 @@ export class UserController {
         return {
             username: user.username,
             id: user.id,
-            accessToken
+            accessToken,
+        }
+    }
+
+    @Post('/login')
+    async login(@Res() res: Response, @Body() createUserDto: CreateUserDto) {
+        const user = await this.userService.findUserByUsername(createUserDto.username);
+
+        try {
+            await this.userService.comparePasswords(user, createUserDto.password);
+            const accessToken = await this.userService.generateToken(user);
+            res.status(HttpStatus.OK).json({
+                id: user.id,
+                username: user.username,
+                accessToken
+            });
+        } catch (error) {
+            res.status(HttpStatus.UNAUTHORIZED).json({
+                statusCode: HttpStatus.UNAUTHORIZED,
+                message: error.message,
+                error: 'Failed login',
+            }).end();
         }
     }
 

@@ -5,6 +5,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm'; 
 import { JwtService } from '@nestjs/jwt';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UserService {
@@ -19,6 +20,26 @@ export class UserService {
         return await this.userRepository.save(user);
     }
 
+    async findUserByUsername(username: string): Promise<User | null> {
+        const user: User | null = await this.userRepository.findOne({
+            where: {
+                username
+            }
+        });
+
+        return user;
+    }
+    
+    async comparePasswords(user: User | null, password: string): Promise<void> {
+        if (user === null) {
+            throw new Error('Wrong username or password');
+        } else {
+            const comparison = await bcrypt.compare(password, user.password);
+            if (!comparison) {
+                throw new Error('Wrong username or password')
+            }
+        }
+    }
     findAll() {
         return `This action returns all user`;
     }

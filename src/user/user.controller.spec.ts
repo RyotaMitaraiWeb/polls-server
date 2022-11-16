@@ -14,6 +14,7 @@ describe('UserController', () => {
     let user: CreateUserDto;
     let service: UserService;
     const registerEndpoint = '/user/register';
+    const loginEndpoint = '/user/login';
     let app: INestApplication;
 
     beforeEach(async () => {
@@ -81,6 +82,50 @@ describe('UserController', () => {
 
     it('Fails to register if a token is detected', async () => {
         const data: IRequestError = await request(app.getHttpServer()).post(registerEndpoint).send({
+            username: 'ryota1',
+            password: '123456',
+        })
+        .set('Authorization', 'a')
+        .expect(HttpStatus.FORBIDDEN);
+    });
+
+    it('Successful login', async () => {
+        const data: IUserBody = await request(app.getHttpServer()).post(registerEndpoint).send({
+            username: 'ryota1',
+            password: '123456',
+        });
+
+        const login: IUserBody = await request(app.getHttpServer()).post(loginEndpoint).send({
+            username: 'ryota1',
+            password: '123456',
+        }).expect(HttpStatus.OK);
+
+        expect(login.body.id).toBe(1);
+        expect(login.body.username).toBe('ryota1');
+        expect(login.body.accessToken).toBeTruthy();
+    });
+
+    it('Failed login due to non-existant username', async () => {
+        const login: IUserBody = await request(app.getHttpServer()).post(loginEndpoint).send({
+            username: 'ryota1',
+            password: '123456',
+        }).expect(HttpStatus.UNAUTHORIZED);
+    });
+
+    it('Failed login due to wrong password', async () => {
+        const data: IUserBody = await request(app.getHttpServer()).post(registerEndpoint).send({
+            username: 'ryota1',
+            password: '123456',
+        });
+
+        const login: IUserBody = await request(app.getHttpServer()).post(loginEndpoint).send({
+            username: 'ryota1',
+            password: '1234567',
+        }).expect(HttpStatus.UNAUTHORIZED);
+    });
+
+    it('Failed login due to a presence of a token', async () => {
+        const login: IUserBody = await request(app.getHttpServer()).post(loginEndpoint).send({
             username: 'ryota1',
             password: '123456',
         })
