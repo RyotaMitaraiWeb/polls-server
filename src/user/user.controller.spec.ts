@@ -15,6 +15,7 @@ describe('UserController', () => {
     let service: UserService;
     const registerEndpoint = '/user/register';
     const loginEndpoint = '/user/login';
+    const logoutEndpoint = '/user/logout';
     let app: INestApplication;
 
     beforeEach(async () => {
@@ -145,6 +146,38 @@ describe('UserController', () => {
         .set('Authorization', 'a')
         .expect(HttpStatus.FORBIDDEN);
     });
+
+    it('Logs out successfully', async () => {
+        const register: IUserBody = await request(app.getHttpServer()).post(registerEndpoint).send({
+            username: 'ryota1',
+            password: '123456',
+        });
+
+        const token = register.body.accessToken;
+        const logout = await request(app.getHttpServer()).delete(logoutEndpoint)
+        .set('Authorization', token)
+        .expect(HttpStatus.NO_CONTENT);
+    });
+
+    it('Failed logout due to no token', async () => {
+        const logout = await request(app.getHttpServer()).delete(logoutEndpoint)
+        .expect(HttpStatus.UNAUTHORIZED);
+    });
+
+    it('Blacklisted token stops request', async () => {
+        const register: IUserBody = await request(app.getHttpServer()).post(registerEndpoint).send({
+            username: 'ryota1',
+            password: '123456',
+        });
+
+        const token = register.body.accessToken;
+        const logout = await request(app.getHttpServer()).delete(logoutEndpoint)
+        .set('Authorization', token)
+
+        const failedLogout = await request(app.getHttpServer()).delete(logoutEndpoint)
+        .set('Authorization', token)
+        .expect(HttpStatus.UNAUTHORIZED);
+    })
 
     afterEach(async () => {
         await app.close();

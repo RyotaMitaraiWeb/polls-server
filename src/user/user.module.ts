@@ -4,7 +4,7 @@ import { UserController } from './user.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './entities/user.entity'
 import { Repository } from 'typeorm';
-import { VerifyLackOfToken, VerifyToken } from '../middlewares/jwt.middleware';
+import { BlacklistToken, VerifyLackOfToken, VerifyToken } from '../middlewares/jwt.middleware';
 import { JwtService } from '@nestjs/jwt';
 
 @Module({
@@ -15,8 +15,8 @@ import { JwtService } from '@nestjs/jwt';
 export class UserModule implements NestModule {
     configure(consumer: MiddlewareConsumer) {
         consumer
-            .apply(VerifyToken).forRoutes({
-                path: 'user/logout', method: RequestMethod.POST,
+            .apply(VerifyToken, BlacklistToken).forRoutes({
+                path: 'user/logout', method: RequestMethod.DELETE,
             })
             .apply(VerifyLackOfToken).forRoutes({
                 path: 'user/login', method: RequestMethod.POST

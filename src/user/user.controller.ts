@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Res, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Req, Res, HttpStatus } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -65,8 +65,10 @@ export class UserController {
         return this.userService.update(+id, updateUserDto);
     }
 
-    @Delete(':id')
-    remove(@Param('id') id: string) {
-        return this.userService.remove(+id);
+    @Delete('/logout')
+    logout(@Req() req: IRequest, @Res() res: Response) {
+        res.status(HttpStatus.NO_CONTENT).json({
+            statusCode: HttpStatus.NO_CONTENT
+        });
     }
 }

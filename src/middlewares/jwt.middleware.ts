@@ -14,7 +14,6 @@ export class VerifyToken implements NestMiddleware {
             if (blacklist.has(token)) {
                 throw new Error()
             }
-            console.log('pass');
             const user: DecodedToken = await this.jwtService.verifyAsync(token, {
                 secret: process.env.JWT_SECRET || 'wemgwenwewiowjhe', 
             });
