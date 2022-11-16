@@ -54,6 +54,11 @@ describe('UserService', () => {
         expect(found.id).toBe(1);
     });
 
+    it('findUserByUsername returns null for non-existant users', async () => {
+        const user = await service.findUserByUsername('empty');
+        expect(user).toBeNull();
+    })
+
     it('findUserById works', async () => {
         user.username = 'ryota1';
         user.password = '123456';
@@ -62,5 +67,10 @@ describe('UserService', () => {
         const found = await service.findUserById(1);
         expect(found.username).toBe('ryota1');
         expect(found.id).toBe(1);
+    });
+
+    it('findUserById returns null for non-existant users', async () => {
+        const user = await service.findUserById(-1);
+        expect(user).toBeNull();
     })
 });
