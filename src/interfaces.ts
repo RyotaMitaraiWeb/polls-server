@@ -4,8 +4,8 @@ export interface IUserBody {
     body: {
         id: number,
         username: string,
-        password: string,
-    }
+        accessToken: string,
+    },
 }
 
 export interface IRequestError {

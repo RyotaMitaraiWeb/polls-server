@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { TypeOrmSQLiteTestingModule } from '../test-db';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UserService } from './user.service';
+import { JwtService } from '@nestjs/jwt';
 
 describe('UserService', () => {
     let service: UserService;
@@ -9,7 +10,7 @@ describe('UserService', () => {
 
     beforeEach(async () => {
         const module: TestingModule = await Test.createTestingModule({
-            providers: [UserService],
+            providers: [UserService, JwtService],
             imports: [...TypeOrmSQLiteTestingModule()]
         }).compile();
 

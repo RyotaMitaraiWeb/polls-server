@@ -5,7 +5,9 @@ import { UserController } from './user.controller';
 import { UserService } from './user.service';
 import { INestApplication, ValidationPipe, HttpStatus } from '@nestjs/common';
 import * as request from 'supertest';
-import { IRequestError, IUserBody } from 'src/interfaces';
+import { IRequestError, IUserBody } from '../interfaces';
+import { JwtService } from '@nestjs/jwt';
+import { UserModule } from './user.module';
 
 describe('UserController', () => {
     let controller: UserController;
@@ -16,9 +18,9 @@ describe('UserController', () => {
 
     beforeEach(async () => {
         const module: TestingModule = await Test.createTestingModule({
-            imports: [...TypeOrmSQLiteTestingModule()],
+            imports: [...TypeOrmSQLiteTestingModule(), UserModule],
             controllers: [UserController],
-            providers: [UserService],
+            providers: [UserService, JwtService],
         }).compile();
 
         controller = module.get<UserController>(UserController);
@@ -39,12 +41,13 @@ describe('UserController', () => {
             password: '123456',
         }).expect(HttpStatus.CREATED);
         expect(data.body.username).toBe('ryota1');
-        expect(data.body.password.length).toBeGreaterThan(10);
         expect(data.body.id).toBe(1);
+        expect(data.body.accessToken.length).toBeGreaterThan(10);
     });
 
     it('Fails to register when username is shorter than 5 letters', async () => {
-        const data: IRequestError = await request(app.getHttpServer()).post(registerEndpoint).send({
+        const data: IRequestError = await request(app.getHttpServer()).post(registerEndpoint)
+        .send({
             username: 'abcd',
             password: '123456',
         }).expect(HttpStatus.BAD_REQUEST);
@@ -74,6 +77,15 @@ describe('UserController', () => {
             username: 'ryota1',
             password: 1,
         }).expect(HttpStatus.BAD_REQUEST);
+    });
+
+    it('Fails to register if a token is detected', async () => {
+        const data: IRequestError = await request(app.getHttpServer()).post(registerEndpoint).send({
+            username: 'ryota1',
+            password: '123456',
+        })
+        .set('Authorization', 'a')
+        .expect(HttpStatus.FORBIDDEN);
     });
 
     afterEach(async () => {

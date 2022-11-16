@@ -4,11 +4,13 @@ import { UserController } from './user.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './entities/user.entity'
 import { Repository } from 'typeorm';
-import { VerifyLackOfToken, VerifyToken } from 'src/middlewares/jwt.middleware';
+import { VerifyLackOfToken, VerifyToken } from '../middlewares/jwt.middleware';
+import { JwtService } from '@nestjs/jwt';
+
 @Module({
     imports: [TypeOrmModule.forFeature([User])],
     controllers: [UserController],
-    providers: [UserService, Repository<User>]
+    providers: [UserService, Repository<User>, JwtService]
 })
 export class UserModule implements NestModule {
     configure(consumer: MiddlewareConsumer) {
