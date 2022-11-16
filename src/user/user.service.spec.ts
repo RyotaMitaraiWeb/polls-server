@@ -52,5 +52,15 @@ describe('UserService', () => {
         const found = await service.findUserByUsername('ryota1');
         expect(found.username).toBe('ryota1');
         expect(found.id).toBe(1);
+    });
+
+    it('findUserById works', async () => {
+        user.username = 'ryota1';
+        user.password = '123456';
+
+        const registeredUser = await service.create(user);
+        const found = await service.findUserById(1);
+        expect(found.username).toBe('ryota1');
+        expect(found.id).toBe(1);
     })
 });
