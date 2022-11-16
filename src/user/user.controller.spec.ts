@@ -46,6 +46,19 @@ describe('UserController', () => {
         expect(data.body.accessToken.length).toBeGreaterThan(10);
     });
 
+    it('Fails to register if username already exists', async () => {
+        const data: IUserBody = await request(app.getHttpServer()).post(registerEndpoint).send({
+            username: 'ryota1',
+            password: '123456',
+        });
+
+        const data1: IUserBody = await request(app.getHttpServer()).post(registerEndpoint).send({
+            username: 'ryota1',
+            password: '123456',
+        }).expect(HttpStatus.BAD_REQUEST);
+        
+    });
+
     it('Fails to register when username is shorter than 5 letters', async () => {
         const data: IRequestError = await request(app.getHttpServer()).post(registerEndpoint)
         .send({

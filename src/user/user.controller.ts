@@ -10,13 +10,22 @@ export class UserController {
     constructor(private readonly userService: UserService) { }
 
     @Post('/register')
-    async create(@Body() createUserDto: CreateUserDto) {
+    async create(@Res() res: Response, @Body() createUserDto: CreateUserDto) {
         const user = await this.userService.create(createUserDto);
-        const accessToken = await this.userService.generateToken(user);
-        return {
-            username: user.username,
-            id: user.id,
-            accessToken,
+        
+        if (user === null) {
+            res.status(HttpStatus.BAD_REQUEST).json({
+                statusCode: HttpStatus.BAD_REQUEST,
+                error: 'Existing user',
+                message: ['User already exists'],
+            })
+        } else {
+            const accessToken = await this.userService.generateToken(user);
+            res.status(HttpStatus.CREATED).json({
+                id: user.id,
+                username: user.username,
+                accessToken
+            });
         }
     }
 

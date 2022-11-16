@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
-import { Repository } from 'typeorm'; 
+import { Repository } from 'typeorm';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 
@@ -11,13 +11,18 @@ import * as bcrypt from 'bcrypt';
 export class UserService {
     @InjectRepository(User)
     private readonly userRepository: Repository<User>;
-    constructor(private readonly jwtService: JwtService) {}
+    constructor(private readonly jwtService: JwtService) { }
 
-    public async create(createUserDto: CreateUserDto) {
-        const user = new User();
-        user.username = createUserDto.username;
-        user.password = createUserDto.password;
-        return await this.userRepository.save(user);
+    public async create(createUserDto: CreateUserDto): Promise<User | null> {
+        const existingUser = await this.findUserByUsername(createUserDto.username);
+        if (existingUser) {
+            return null;
+        } else {
+            const user = new User();
+            user.username = createUserDto.username;
+            user.password = createUserDto.password;
+            return await this.userRepository.save(user);
+        }
     }
 
     async findUserByUsername(username: string): Promise<User | null> {
@@ -29,7 +34,7 @@ export class UserService {
 
         return user;
     }
-    
+
     async comparePasswords(user: User | null, password: string): Promise<void> {
         if (user === null) {
             throw new Error('Wrong username or password');
