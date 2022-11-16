@@ -5,11 +5,14 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { UserModule } from './user/user.module';
 import { User } from './user/entities/user.entity';
-import { UserService } from './user/user.service';
-
+import { JwtModule, JwtService } from '@nestjs/jwt';
 
 @Module({
     imports: [
+        JwtModule.register({
+            secret: process.env.JWT_SECRET || 'wemgwenwewiowjhe',
+            secretOrPrivateKey: process.env.JWT_SECRET || 'wemgwenwewiowjhe',
+        }),
         ConfigModule.forRoot({
             envFilePath: '../variables.env',
             isGlobal: true,
@@ -28,6 +31,6 @@ import { UserService } from './user/user.service';
 
     ],
     controllers: [AppController],
-    providers: [AppService],
+    providers: [AppService, JwtService],
 })
 export class AppModule { }

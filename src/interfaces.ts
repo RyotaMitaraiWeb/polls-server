@@ -1,3 +1,5 @@
+import { Request } from "express"
+
 export interface IUserBody {
     body: {
         id: number,
@@ -12,4 +14,15 @@ export interface IRequestError {
         message: string[],
         error: string,
     }
+}
+
+export interface DecodedToken {
+    id: number,
+    username: string,
+}
+
+export interface IRequest extends Request {
+    username: string,
+    password: string,
+    user: DecodedToken,
 }
