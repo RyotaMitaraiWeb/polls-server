@@ -28,11 +28,19 @@ describe('UserService', () => {
         expect(user.username).toBe('ryota1');
         expect(user.password).toBe('123456')
     });
-    
+
     it('Hashes password before insert', async () => {
         user.username = 'ryota1';
         user.password = '123456'
         const registeredUser = await service.create(user);
         expect(registeredUser.password.length).toBeGreaterThan(10); // simply make sure it's hashed, no need to look for specific hash
-    })
+    });
+
+    it('Generates token successfully', async () => {
+        user.username = 'ryota1';
+        user.password = '123456';
+        const registeredUser = await service.create(user);
+        const token = await service.generateToken(registeredUser);
+        expect(token.length).toBeGreaterThan(10);
+    });
 });
