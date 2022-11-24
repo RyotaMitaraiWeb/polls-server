@@ -1,25 +1,19 @@
 import { NestMiddleware, Injectable, HttpStatus } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { Request, Response, NextFunction } from 'express';
+import { Response, NextFunction } from 'express';
 import { DecodedToken, IRequest } from '../../src/interfaces';
 
 const blacklist = new Set<string>;
 
 @Injectable()
 export class VerifyToken implements NestMiddleware {
-    constructor(private readonly jwtService: JwtService) {}
     async use(req: IRequest, res: Response, next: NextFunction) {
-        const token = req.headers.authorization;
         try {
-            if (blacklist.has(token)) {
-                throw new Error()
+            if (req.isLogged) {
+                next();
+            } else {
+                throw new Error();
             }
-            const user: DecodedToken = await this.jwtService.verifyAsync(token, {
-                secret: process.env.JWT_SECRET || 'wemgwenwewiowjhe', 
-            });
-            req.user = user;
-            next();
-            
         } catch (error) {
             res.status(HttpStatus.UNAUTHORIZED).json({
                 statusCode: HttpStatus.UNAUTHORIZED,
@@ -28,7 +22,33 @@ export class VerifyToken implements NestMiddleware {
             }).end();
         }
     }
+}
 
+@Injectable()
+export class CheckIfLogged implements NestMiddleware {
+    constructor(private readonly jwtService: JwtService) { }
+    async use(req: IRequest, res: Response, next: NextFunction) {
+        const token = req.headers.authorization;
+
+        try {
+            if (blacklist.has(token)) {
+                throw new Error();
+            }
+
+            const user: DecodedToken = await this.jwtService.verifyAsync(token, {
+                secret: process.env.JWT_SECRET || 'wemgwenwewiowjhe',
+            });
+
+            req.user = user;
+            req.isLogged = true;
+
+        } catch (error) {
+            req.user = null;
+            req.isLogged = false;
+        }
+
+        next();
+    }
 }
 
 @Injectable()
