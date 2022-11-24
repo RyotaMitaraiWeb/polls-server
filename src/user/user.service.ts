@@ -21,6 +21,7 @@ export class UserService {
             const user = new User();
             user.username = createUserDto.username;
             user.password = createUserDto.password;
+            user.polls = [];
             return await this.userRepository.save(user);
         }
     }

@@ -1,5 +1,6 @@
-import { Entity, Column, PrimaryGeneratedColumn, BeforeInsert } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, BeforeInsert, OneToMany, ManyToOne } from 'typeorm';
 import * as bcrypt from 'bcrypt';
+import { Poll } from '../../poll/entities/poll.entity';
 
 @Entity()
 export class User {
@@ -11,6 +12,11 @@ export class User {
 
     @Column()
     public password: string;
+
+    @OneToMany(() => Poll, (poll) => poll.author, {
+        eager: true,
+    })
+    polls: Poll[];
 
     @BeforeInsert()
     async beforeInsert() {

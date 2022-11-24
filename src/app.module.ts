@@ -6,6 +6,11 @@ import { ConfigModule } from '@nestjs/config';
 import { UserModule } from './user/user.module';
 import { User } from './user/entities/user.entity';
 import { JwtModule, JwtService } from '@nestjs/jwt';
+import { PollModule } from './poll/poll.module';
+import { Poll } from './poll/entities/poll.entity';
+import { ChoiceModule } from './choice/choice.module';
+import { Choice } from './choice/entities/choice.entity';
+import { PollPreviousTitle } from './poll/entities/poll-previous-title.entity';
 
 @Module({
     imports: [
@@ -24,10 +29,12 @@ import { JwtModule, JwtService } from '@nestjs/jwt';
             username: process.env.POSTGRE_USERNAME || 'postgres',
             password: process.env.DB_PASSWORD || '1234',
             database: 'test',
-            entities: [User],
+            entities: [User, Poll, Choice, PollPreviousTitle],
             synchronize: process.env.ENV === 'DEV',
         }),
         UserModule,
+        PollModule,
+        ChoiceModule,
 
     ],
     controllers: [AppController],
