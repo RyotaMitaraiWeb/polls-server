@@ -31,9 +31,13 @@ export class PollModule implements NestModule {
                 path: 'poll/:id/delete', method: RequestMethod.DELETE,
             })
             .apply(CheckIfLogged, VerifyToken)
-            .exclude({
-                path: 'poll/:id', method: RequestMethod.GET,
-            }).forRoutes(PollController)
+            .exclude(
+                {
+                    path: 'poll', method: RequestMethod.GET
+                },
+                {
+                    path: 'poll/:id', method: RequestMethod.GET,
+                }).forRoutes(PollController)
             .apply(CheckIfLogged, IsAuthor, HasVoted)
             .forRoutes({
                 path: 'poll/:id', method: RequestMethod.GET,
@@ -41,6 +45,6 @@ export class PollModule implements NestModule {
             .apply(CheckIfLogged, VerifyToken, HasVoted, CanVote)
             .forRoutes({
                 path: 'poll/:pollId/vote/:choiceId', method: RequestMethod.POST,
-            });
+            })
     }
 }

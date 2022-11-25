@@ -345,4 +345,62 @@ describe('PollController', () => {
             .set('Authorization', token)
             .expect(HttpStatus.FORBIDDEN)
     });
+
+    it('Gets search results successfully', async () => {
+        await request(server).post('/poll/create')
+            .set('Authorization', token)
+            .send({
+                title: 'ababab',
+                description: '',
+                choices: ['a', 'b'],
+            });
+
+        await request(server).post('/poll/create')
+            .set('Authorization', token)
+            .send({
+                title: 'abcde',
+                description: '',
+                choices: ['a', 'b'],
+            });
+
+        await request(server).post('/poll/create')
+            .set('Authorization', token)
+            .send({
+                title: '12345',
+                description: '',
+                choices: ['a', 'b'],
+            });
+
+        const polls = await request(server).get('/poll').query({ search: 'ab' });
+        expect(polls.body.length).toBe(2);
+    });
+
+    it('Gets an empty array if search does not find anything', async () => {
+        await request(server).post('/poll/create')
+            .set('Authorization', token)
+            .send({
+                title: 'ababab',
+                description: '',
+                choices: ['a', 'b'],
+            });
+
+        await request(server).post('/poll/create')
+            .set('Authorization', token)
+            .send({
+                title: 'abcde',
+                description: '',
+                choices: ['a', 'b'],
+            });
+
+        await request(server).post('/poll/create')
+            .set('Authorization', token)
+            .send({
+                title: '12345',
+                description: '',
+                choices: ['a', 'b'],
+            });
+
+        const polls = await request(server).get('/poll').query({ search: '0' });
+        expect(polls.body.length).toBe(0);
+    });
 });

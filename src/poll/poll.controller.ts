@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Req, Res, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Req, Res, HttpStatus, Query } from '@nestjs/common';
 import { Response } from 'express';
 import { PollService } from './poll.service';
 import { CreatePollDto } from './dto/create-poll.dto';
@@ -34,7 +34,7 @@ export class PollController {
         try {
             const choiceId: number = +req.params.choiceId;
             const userId: number = req.user.id;
-            
+
             await this.pollService.vote(userId, choiceId);
             res.status(HttpStatus.OK).json({
                 voteId: choiceId,
@@ -47,6 +47,11 @@ export class PollController {
             });
         } 
 
+    }
+
+    @Get('')
+    async search(@Query('search') searchText: string) {
+        return await this.pollService.search(searchText);
     }
 
     @Get(':id')

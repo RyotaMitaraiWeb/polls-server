@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ChoiceService } from '../choice/choice.service';
 import { UserService } from '../user/user.service';
-import { Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 import { CreatePollDto } from './dto/create-poll.dto';
 import { UpdatePollDto } from './dto/update-poll.dto';
 import { Poll } from './entities/poll.entity';
@@ -100,5 +100,13 @@ export class PollService {
         
         choice.usersThatVoted.push(user);
         return await this.choiceRepository.save(choice);
+    }
+
+    async search(input: string): Promise<Poll[]> {
+        const polls: Poll[] = await this.pollRepository.findBy({
+            title: Like(`%${input}%`)
+        });
+
+        return polls;
     }
 }
