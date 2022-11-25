@@ -18,6 +18,7 @@ export class ChoiceService {
     }
 
     async createChoices(input: string[]): Promise<Choice[]> {
+        input.sort((a, b) => a.localeCompare(b));
         const choices: Choice[] = await Promise.all(
             input.map(async choice => await this.create(choice))
         );
