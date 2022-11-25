@@ -22,29 +22,25 @@ import { HasVoted, CanVote } from '../middlewares/vote.middleware';
 export class PollModule implements NestModule {
     configure(consumer: MiddlewareConsumer) {
         consumer
-            .apply(CheckIfLogged, VerifyToken, IsAuthor, IsAuthorized)
-            .forRoutes({
-                path: 'poll/:id/edit', method: RequestMethod.PATCH,
-            })
-            .apply(CheckIfLogged, VerifyToken, IsAuthor, IsAuthorized)
-            .forRoutes({
-                path: 'poll/:id/delete', method: RequestMethod.DELETE,
-            })
-            .apply(CheckIfLogged, VerifyToken)
-            .exclude(
-                {
-                    path: 'poll', method: RequestMethod.GET
-                },
-                {
-                    path: 'poll/:id', method: RequestMethod.GET,
-                }).forRoutes(PollController)
             .apply(CheckIfLogged, IsAuthor, HasVoted)
+            .exclude({
+                path: 'poll/all', method: RequestMethod.GET,
+            })
             .forRoutes({
                 path: 'poll/:id', method: RequestMethod.GET,
+            })
+            .apply(CheckIfLogged, VerifyToken)
+            .forRoutes({
+                path: 'poll/create', method: RequestMethod.POST,
             })
             .apply(CheckIfLogged, VerifyToken, HasVoted, CanVote)
             .forRoutes({
                 path: 'poll/:pollId/vote/:choiceId', method: RequestMethod.POST,
             })
+            .apply(CheckIfLogged, VerifyToken, IsAuthor, IsAuthorized)
+            .forRoutes(
+                { path: 'poll/:id/edit', method: RequestMethod.PATCH },
+                { path: 'poll/:id/delete', method: RequestMethod.DELETE }
+            )
     }
 }
