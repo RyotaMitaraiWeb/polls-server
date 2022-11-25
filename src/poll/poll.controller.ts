@@ -29,24 +29,42 @@ export class PollController {
         }
     }
 
-    @Get()
-    findAll() {
-        return this.pollService.findAll();
+    @Post(':pollId/vote/:choiceId')
+    async vote(@Req() req: IRequest, @Res() res: Response) {
+        try {
+            const choiceId: number = +req.params.choiceId;
+            const userId: number = req.user.id;
+            
+            await this.pollService.vote(userId, choiceId);
+            res.status(HttpStatus.OK).json({
+                voteId: choiceId,
+            });
+        } catch (error) {
+            res.status(HttpStatus.FORBIDDEN).json({
+                statusCode: HttpStatus.FORBIDDEN,
+                error: 'Already voted',
+                message: error.message,
+            });
+        } 
+
     }
 
     @Get(':id')
     async findOne(@Req() req: IRequest, @Res() res: Response, @Param('id') id: string) {
         try {
-            const { title, description, author, choices, previousTitles } = req.poll;            
-            
+            const { title, description, author, previousTitles } = req.poll;
+            const voteCount = this.pollService.getVoteCounts(req.poll);
+
             res.status(HttpStatus.OK).json({
                 id: +id,
                 title,
                 description,
-                choices,
                 previousTitles,
                 author: author.username,
                 isAuthor: req.isAuthor,
+                voteCount,
+                hasVoted: req.hasVoted,
+                voteId: req.voteId,
             }).end();
         } catch (err) {
             res.status(HttpStatus.NOT_FOUND).json({

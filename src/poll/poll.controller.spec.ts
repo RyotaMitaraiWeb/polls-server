@@ -9,7 +9,7 @@ import { TypeOrmSQLiteTestingModule } from '../test-db';
 import { HttpStatus, INestApplication, ValidationPipe } from '@nestjs/common';
 import { CreatePollDto } from './dto/create-poll.dto';
 import * as request from 'supertest';
-import { IPollBody, IUserBody } from '../interfaces';
+import { IPollBody, IUserBody, IVoteCount } from '../interfaces';
 import { UserController } from '../user/user.controller';
 import { PollModule } from './poll.module';
 import { UserModule } from '../user/user.module';
@@ -179,8 +179,10 @@ describe('PollController', () => {
         expect(poll.body.id).toBe(1);
         expect(poll.body.title).toBe('12345');
         expect(poll.body.description).toBe('');
-        expect(poll.body.choices.length).toBe(2);
+        expect(poll.body.voteCount.length).toBe(2);
         expect(poll.body.author).toBe('ryota1');
+        expect(poll.body.hasVoted).toBe(false);
+        expect(poll.body.voteId).toBe(-1);
     });
 
     it('Fails to get non-existant poll', async () => {
@@ -299,5 +301,48 @@ describe('PollController', () => {
         const newPoll = await request(server).delete(`/poll/${poll.body.id}/delete`)
             .set('Authorization', newUser.body.accessToken)
             .expect(HttpStatus.FORBIDDEN);
+    });
+
+    it('Votes successfully', async () => {
+        const created: any = await request(server).post('/poll/create')
+            .set('Authorization', token)
+            .send({
+                title: '12345',
+                description: '',
+                choices: ['a', 'b'],
+            });
+
+        const poll: IPollBody = await request(server).get('/poll/' + created.body.id);
+
+        expect(poll.body.hasVoted).toBe(false);
+        expect(poll.body.voteId).toBe(-1);
+        await request(server).post(`/poll/${poll.body.id}/vote/${poll.body.voteCount[0].id}`)
+            .set('Authorization', token)
+            .expect(HttpStatus.OK);
+
+        const votedPoll = await request(server).get('/poll/' + created.body.id)
+            .set('Authorization', token);
+        expect(votedPoll.body.hasVoted).toBe(true);
+        expect(votedPoll.body.voteId).toBe(poll.body.voteCount[0].id);
+    });
+
+    it('Does not vote if user has already voted', async () => {
+        const created: any = await request(server).post('/poll/create')
+            .set('Authorization', token)
+            .send({
+                title: '12345',
+                description: '',
+                choices: ['a', 'b'],
+            });
+
+        const poll: IPollBody = await request(server).get('/poll/' + created.body.id);
+
+        await request(server).post(`/poll/${poll.body.id}/vote/${poll.body.voteCount[0].id}`)
+            .set('Authorization', token)
+
+
+        await request(server).post(`/poll/${poll.body.id}/vote/${poll.body.voteCount[0].id}`)
+            .set('Authorization', token)
+            .expect(HttpStatus.FORBIDDEN)
     });
 });

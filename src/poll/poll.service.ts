@@ -7,12 +7,17 @@ import { CreatePollDto } from './dto/create-poll.dto';
 import { UpdatePollDto } from './dto/update-poll.dto';
 import { Poll } from './entities/poll.entity';
 import { PollPreviousTitle } from './entities/poll-previous-title.entity';
+import { User } from '../user/entities/user.entity';
+import { Choice } from '../choice/entities/choice.entity';
 
 @Injectable()
 export class PollService {
     @InjectRepository(Poll)
     private readonly pollRepository: Repository<Poll>;
-    
+
+    @InjectRepository(Choice)
+    private readonly choiceRepository: Repository<Choice>;
+
     @InjectRepository(PollPreviousTitle)
     private readonly previousTitleRepository: Repository<PollPreviousTitle>;
 
@@ -36,10 +41,6 @@ export class PollService {
         return await this.pollRepository.save(poll);
     }
 
-    findAll() {
-        return `This action returns all poll`;
-    }
-
     async findPollById(id: number): Promise<Poll | null> {
         const poll = await this.pollRepository.findOne({
             relations: {
@@ -54,9 +55,19 @@ export class PollService {
 
         if (poll === null) {
             throw new Error('Poll not found');
-        }
+        }  
 
         return poll;
+    }
+
+    getVoteCounts(poll: Poll) {
+        return poll.choices.map(choice => {
+            return {
+                id: choice.id,
+                content: choice.content,
+                count: choice.getVoteCount()
+            }
+        })
     }
 
     async update(id: number, updatePollDto: UpdatePollDto) {
@@ -79,5 +90,15 @@ export class PollService {
     async remove(id: number) {
         const poll = await this.findPollById(id);
         return await this.pollRepository.remove(poll);
+    }
+
+    async vote(userId: number, choiceId: number) {
+        const choice = await this.choiceRepository.findOneBy({
+            id: choiceId
+        });
+        const user: User = await this.userService.findUserById(userId);
+        
+        choice.usersThatVoted.push(user);
+        return await this.choiceRepository.save(choice);
     }
 }

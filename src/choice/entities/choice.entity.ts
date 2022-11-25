@@ -15,7 +15,13 @@ export class Choice {
     })
     poll: Poll;
 
-    @ManyToMany(() => User)
+    @ManyToMany(() => User, {
+        eager: true,
+    })
     @JoinTable()
     usersThatVoted: User[];
+
+    getVoteCount() {
+        return this.usersThatVoted.length;
+    }
 }

@@ -34,6 +34,14 @@ export interface IRequest extends Request {
     isAuthor: boolean,
     poll: Poll,
     isLogged: boolean,
+    hasVoted: boolean,
+    voteId: number,
+}
+
+export interface IVoteCount {
+    content: string,
+    id: number,
+    count: number
 }
 
 export interface IPollBody {
@@ -45,5 +53,8 @@ export interface IPollBody {
         author: string,
         previousTitles: string[],
         isAuthor: boolean,
+        hasVoted: boolean,
+        voteCount: IVoteCount[],
+        voteId: number,
     }
 }

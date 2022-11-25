@@ -12,6 +12,7 @@ import { NestModule } from '@nestjs/common/interfaces/modules';
 import { CheckIfLogged, VerifyToken } from '../middlewares/jwt.middleware';
 import { PollPreviousTitle } from './entities/poll-previous-title.entity';
 import { IsAuthor, IsAuthorized } from '../middlewares/authorship.middleware';
+import { HasVoted, CanVote } from '../middlewares/vote.middleware';
 
 @Module({
     controllers: [PollController],
@@ -33,9 +34,13 @@ export class PollModule implements NestModule {
             .exclude({
                 path: 'poll/:id', method: RequestMethod.GET,
             }).forRoutes(PollController)
-            .apply(CheckIfLogged, IsAuthor)
+            .apply(CheckIfLogged, IsAuthor, HasVoted)
             .forRoutes({
                 path: 'poll/:id', method: RequestMethod.GET,
             })
+            .apply(CheckIfLogged, VerifyToken, HasVoted, CanVote)
+            .forRoutes({
+                path: 'poll/:pollId/vote/:choiceId', method: RequestMethod.POST,
+            });
     }
 }
