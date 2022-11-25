@@ -109,4 +109,19 @@ export class PollService {
 
         return polls;
     }
+
+    async findAll(): Promise<Poll[]> {
+        const polls: Poll[] = await this.pollRepository.find({
+            select: {
+                title: true,
+                description: true,
+                id: true,
+            },
+            order: {
+                title: 'ASC',
+            },
+        });
+
+        return polls;
+    }
 }

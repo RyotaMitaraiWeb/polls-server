@@ -49,6 +49,11 @@ export class PollController {
 
     }
 
+    @Get('all')
+    async findAll() {
+        return await this.pollService.findAll();
+    }
+
     @Get('')
     async search(@Query('search') searchText: string) {
         return await this.pollService.search(searchText);
@@ -56,7 +61,7 @@ export class PollController {
 
     @Get(':id')
     async findOne(@Req() req: IRequest, @Res() res: Response, @Param('id') id: string) {
-        try {
+        try {            
             const { title, description, author, previousTitles } = req.poll;
             const voteCount = this.pollService.getVoteCounts(req.poll);
 

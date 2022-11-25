@@ -403,4 +403,38 @@ describe('PollController', () => {
         const polls = await request(server).get('/poll').query({ search: '0' });
         expect(polls.body.length).toBe(0);
     });
+
+    it('Returns all polls', async () => {
+        await request(server).post('/poll/create')
+            .set('Authorization', token)
+            .send({
+                title: 'ababab',
+                description: '',
+                choices: ['a', 'b'],
+            });
+
+        await request(server).post('/poll/create')
+            .set('Authorization', token)
+            .send({
+                title: 'abcde',
+                description: '',
+                choices: ['a', 'b'],
+            });
+
+        await request(server).post('/poll/create')
+            .set('Authorization', token)
+            .send({
+                title: '12345',
+                description: '',
+                choices: ['a', 'b'],
+            });
+
+        const polls = await request(server).get('/poll/all').expect(HttpStatus.OK);
+        expect(polls.body.length).toBe(3);
+    });
+
+    it('/poll/all returns an empty array if no entries exist', async () => {
+        const polls = await request(server).get('/poll/all').expect(HttpStatus.OK);
+        expect(polls.body.length).toBe(0);
+    })
 });
