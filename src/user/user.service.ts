@@ -1,7 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
 import { JwtService } from '@nestjs/jwt';
@@ -16,7 +15,7 @@ export class UserService {
     public async create(createUserDto: CreateUserDto): Promise<User | null> {
         const existingUser = await this.findUserByUsername(createUserDto.username);
         if (existingUser) {
-            return null;
+            throw new HttpException('User already exists', HttpStatus.BAD_REQUEST);
         } else {
             const user = new User();
             user.username = createUserDto.username;
@@ -38,11 +37,11 @@ export class UserService {
 
     async comparePasswords(user: User | null, password: string): Promise<void> {
         if (user === null) {
-            throw new Error('Wrong username or password');
+            throw new HttpException('Wrong username or password', HttpStatus.UNAUTHORIZED);
         } else {
             const comparison = await bcrypt.compare(password, user.password);
             if (!comparison) {
-                throw new Error('Wrong username or password')
+                throw new HttpException('Wrong username or password', HttpStatus.UNAUTHORIZED);
             }
         }
     }

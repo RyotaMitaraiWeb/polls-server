@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Choice } from './entities/choice.entity';
@@ -27,11 +27,11 @@ export class ChoiceService {
 
     validateChoice(content: string): void {
         if (typeof content !== 'string') {
-            throw new Error('Choice must be a string');
+            throw new HttpException('Choice must be a string', HttpStatus.BAD_REQUEST);
         } else if (content.length < 1) {
-            throw new Error('Choice is empty');
+            throw new HttpException('Choice is empty', HttpStatus.BAD_REQUEST);
         } else if (content.length > 50) {
-            throw new Error(`Choice ${content} is over 50 characters`);
+            throw new HttpException(`Choice ${content} is over 50 characters`, HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -46,9 +46,9 @@ export class ChoiceService {
 
     validateChoiceArray(choices: string[]): void {
         if (this.hasDuplicates(choices)) {
-            throw new Error('Submission has duplicate choices');
+            throw new HttpException('Submission has duplicate choices', HttpStatus.BAD_REQUEST);
         } else if (this.hasLessThanTwoChoices(choices)) {
-            throw new Error('Submission must have at least two choices');
+            throw new HttpException('Submission must have at least two choices', HttpStatus.BAD_REQUEST);
         } else {
             choices.forEach(this.validateChoice);
         }

@@ -1,4 +1,4 @@
-import { NestMiddleware, Injectable, HttpStatus } from '@nestjs/common';
+import { NestMiddleware, Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Response, NextFunction } from 'express';
 import { DecodedToken, IRequest } from '../../src/interfaces';
@@ -12,14 +12,10 @@ export class VerifyToken implements NestMiddleware {
             if (req.isLogged) {
                 next();
             } else {
-                throw new Error();
+                throw new HttpException('Invalid token', HttpStatus.UNAUTHORIZED);
             }
         } catch (error) {
-            res.status(HttpStatus.UNAUTHORIZED).json({
-                statusCode: HttpStatus.UNAUTHORIZED,
-                message: ['Invalid token'],
-                error: 'Invalid token'
-            }).end();
+            res.status(error.status).json(error).end();
         }
     }
 }
@@ -55,14 +51,14 @@ export class CheckIfLogged implements NestMiddleware {
 export class VerifyLackOfToken implements NestMiddleware {
     use(req: IRequest, res: Response, next: NextFunction) {
         const token = req.headers.authorization;
-        if (token) {
-            res.status(HttpStatus.FORBIDDEN).json({
-                error: 'Token detected',
-                statusCode: HttpStatus.FORBIDDEN,
-                message: ['Token detected'],
-            }).end();
-        } else {
-            next();
+        try {
+            if (token) {
+                throw new HttpException('Token detected', HttpStatus.FORBIDDEN)
+            } else {
+                next();
+            }
+        } catch (error) {
+            res.status(error.status).json(error).end();
         }
     }
 }
@@ -70,16 +66,16 @@ export class VerifyLackOfToken implements NestMiddleware {
 @Injectable()
 export class BlacklistToken implements NestMiddleware {
     use(req: IRequest, res: Response, next: NextFunction) {
-        const token = req.headers.authorization;
+        try {
+            const token = req.headers.authorization;
         if (blacklist.has(token)) {
-            res.status(HttpStatus.FORBIDDEN).json({
-                statusCode: HttpStatus.FORBIDDEN,
-                error: 'Token already blacklisted',
-                message: ['Token is already blacklisted']
-            });
+            throw new HttpException('Invalid token', HttpStatus.FORBIDDEN)
         } else {
             blacklist.add(token);
             next();
+        }
+        } catch (error) {
+            res.status(error.status).json(error).end();   
         }
     }
 

@@ -20,21 +20,16 @@ export class UserController {
 
     @Post('/register')
     async create(@Res() res: Response, @Body() createUserDto: CreateUserDto) {
-        const user = await this.userService.create(createUserDto);
-        
-        if (user === null) {
-            res.status(HttpStatus.BAD_REQUEST).json({
-                statusCode: HttpStatus.BAD_REQUEST,
-                error: 'Existing user',
-                message: ['User already exists'],
-            })
-        } else {
+        try {
+            const user = await this.userService.create(createUserDto);
             const accessToken = await this.userService.generateToken(user);
             res.status(HttpStatus.CREATED).json({
                 id: user.id,
                 username: user.username,
-                accessToken
-            });
+                accessToken,
+            }).end();
+        } catch (error) {
+            res.status(error.status).json(error).end();
         }
     }
 
@@ -51,11 +46,7 @@ export class UserController {
                 accessToken
             });
         } catch (error) {
-            res.status(HttpStatus.UNAUTHORIZED).json({
-                statusCode: HttpStatus.UNAUTHORIZED,
-                message: error.message,
-                error: 'Failed login',
-            }).end();
+            res.status(error.status).json(error).end();
         }
     }
 

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ChoiceService } from '../choice/choice.service';
 import { UserService } from '../user/user.service';
@@ -53,9 +53,9 @@ export class PollService {
             }
         });
 
-        if (poll === null) {
-            throw new Error('Poll not found');
-        }  
+        if (!poll) {
+            throw new HttpException('Poll not found', HttpStatus.NOT_FOUND)
+        }
 
         return poll;
     }
@@ -97,7 +97,7 @@ export class PollService {
             id: choiceId
         });
         const user: User = await this.userService.findUserById(userId);
-        
+
         choice.usersThatVoted.push(user);
         return await this.choiceRepository.save(choice);
     }

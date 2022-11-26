@@ -20,32 +20,21 @@ export class PollController {
                 id: poll.id,
                 statusCode: HttpStatus.CREATED,
             }).end();
-        } catch (err) {
-            res.status(HttpStatus.BAD_REQUEST).json({
-                error: 'Invalid poll',
-                message: [err.message],
-                statusCode: HttpStatus.BAD_REQUEST
-            }).end();
+        } catch (error) {
+            res.status(error.status).json(error).end();
         }
     }
 
     @Post(':pollId/vote/:choiceId')
     async vote(@Req() req: IRequest, @Res() res: Response) {
-        try {
-            const choiceId: number = +req.params.choiceId;
-            const userId: number = req.user.id;
 
-            await this.pollService.vote(userId, choiceId);
-            res.status(HttpStatus.OK).json({
-                voteId: choiceId,
-            });
-        } catch (error) {
-            res.status(HttpStatus.FORBIDDEN).json({
-                statusCode: HttpStatus.FORBIDDEN,
-                error: 'Already voted',
-                message: error.message,
-            });
-        } 
+        const choiceId: number = +req.params.choiceId;
+        const userId: number = req.user.id;
+
+        await this.pollService.vote(userId, choiceId);
+        res.status(HttpStatus.OK).json({
+            voteId: choiceId,
+        }).end();
 
     }
 
@@ -61,7 +50,7 @@ export class PollController {
 
     @Get(':id')
     async findOne(@Req() req: IRequest, @Res() res: Response, @Param('id') id: string) {
-        try {            
+        try {
             const { title, description, author, previousTitles } = req.poll;
             const voteCount = this.pollService.getVoteCounts(req.poll);
 
@@ -76,12 +65,8 @@ export class PollController {
                 hasVoted: req.hasVoted,
                 voteId: req.voteId,
             }).end();
-        } catch (err) {
-            res.status(HttpStatus.NOT_FOUND).json({
-                error: 'Poll does not exist',
-                message: [err.message],
-                statusCode: HttpStatus.NOT_FOUND,
-            }).end();
+        } catch (error) {
+            res.status(error.status).json(error).end();
         }
     }
 

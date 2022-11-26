@@ -1,4 +1,4 @@
-import { NestMiddleware, Injectable, HttpStatus } from '@nestjs/common';
+import { NestMiddleware, Injectable, HttpStatus, HttpException } from '@nestjs/common';
 import { Response, NextFunction } from 'express';
 import { Poll } from '../poll/entities/poll.entity';
 import { DecodedToken, IRequest } from '../../src/interfaces';
@@ -37,14 +37,14 @@ export class HasVoted implements NestMiddleware {
 
 export class CanVote implements NestMiddleware {
     use(req: IRequest, res: Response, next: NextFunction) {
-        if (req.hasVoted) {
-            res.status(HttpStatus.FORBIDDEN).json({
-                statusCode: HttpStatus.FORBIDDEN,
-                error: 'Already voted',
-                message: ['User has already voted']
-            }).end();
-        } else {
-            next();
+        try {
+            if (req.hasVoted) {
+                throw new HttpException('User has already voted', HttpStatus.FORBIDDEN)
+            } else {
+                next();
+            }
+        } catch (error) {
+            res.status(error.status).json(error).end();
         }
     }
 
