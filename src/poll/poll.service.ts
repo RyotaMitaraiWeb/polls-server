@@ -98,6 +98,10 @@ export class PollService {
         });
         const user: User = await this.userService.findUserById(userId);
 
+        if (!choice) {
+            throw new HttpException('Choice does not exist', HttpStatus.NOT_FOUND);
+        }
+
         choice.usersThatVoted.push(user);
         return await this.choiceRepository.save(choice);
     }

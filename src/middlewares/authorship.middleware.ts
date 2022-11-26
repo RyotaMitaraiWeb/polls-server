@@ -1,9 +1,13 @@
 import { NestMiddleware, Injectable, HttpStatus, Req, Res, Next, HttpException } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
 import { Response, NextFunction } from 'express';
 import { PollService } from '../poll/poll.service';
 import { DecodedToken, IRequest } from '../../src/interfaces';
 
+/** This middleware attaches the requested poll and whether the user requesting it is its author
+ * to the request object.
+ * If the poll or choice does not exist, the request is blocked. If the user is not logged in, 
+ * the middleware assumes that they are not the author.
+ */
 @Injectable()
 export class IsAuthor implements NestMiddleware {
     constructor(private readonly pollService: PollService) { }
@@ -23,6 +27,9 @@ export class IsAuthor implements NestMiddleware {
     }
 }
 
+/** This middleware blocks requests from any user that is not the author of the requested poll.
+ * This requires information from the IsAuthor middleware
+*/
 @Injectable()
 export class IsAuthorized implements NestMiddleware {
     constructor(private readonly pollService: PollService) { }
