@@ -346,6 +346,22 @@ describe('PollController', () => {
             .expect(HttpStatus.FORBIDDEN)
     });
 
+    it('Does not vote if vote does not exist', async () => {
+        const created: any = await request(server).post('/poll/create')
+            .set('Authorization', token)
+            .send({
+                title: '12345',
+                description: '',
+                choices: ['a', 'b'],
+            });
+
+        const poll: IPollBody = await request(server).get('/poll/' + created.body.id);
+
+        await request(server).post(`/poll/${poll.body.id}/vote/9999999`)
+            .set('Authorization', token)
+            .expect(HttpStatus.NOT_FOUND);
+    });
+
     it('Gets search results successfully', async () => {
         await request(server).post('/poll/create')
             .set('Authorization', token)
@@ -436,5 +452,5 @@ describe('PollController', () => {
     it('/poll/all returns an empty array if no entries exist', async () => {
         const polls = await request(server).get('/poll/all').expect(HttpStatus.OK);
         expect(polls.body.length).toBe(0);
-    })
+    });
 });
