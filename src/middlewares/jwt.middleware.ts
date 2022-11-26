@@ -5,6 +5,8 @@ import { DecodedToken, IRequest } from '../../src/interfaces';
 
 const blacklist = new Set<string>;
 
+/** This middleware blocks requests from users that are not logged in (or provide a blacklisted token). Requires information 
+ * from the CheckIfLogged middleware*/
 @Injectable()
 export class VerifyToken implements NestMiddleware {
     async use(req: IRequest, res: Response, next: NextFunction) {
@@ -20,6 +22,8 @@ export class VerifyToken implements NestMiddleware {
     }
 }
 
+/** This middleware attaches the user's id and username and whether 
+ * they are logged in or not to the request object*/
 @Injectable()
 export class CheckIfLogged implements NestMiddleware {
     constructor(private readonly jwtService: JwtService) { }
@@ -47,6 +51,8 @@ export class CheckIfLogged implements NestMiddleware {
     }
 }
 
+/**This middleware blocks requests from any user that has provided a token
+ *  (regardless of it's valid or invalid) */
 @Injectable()
 export class VerifyLackOfToken implements NestMiddleware {
     use(req: IRequest, res: Response, next: NextFunction) {
@@ -63,6 +69,8 @@ export class VerifyLackOfToken implements NestMiddleware {
     }
 }
 
+/** This middleware invalidates the provided token, 
+ * making it unusable for future requests that require authorization */
 @Injectable()
 export class BlacklistToken implements NestMiddleware {
     use(req: IRequest, res: Response, next: NextFunction) {
