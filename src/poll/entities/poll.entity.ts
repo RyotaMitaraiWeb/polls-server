@@ -1,6 +1,6 @@
 import { Choice } from "../../choice/entities/choice.entity";
 import { User } from "../../user/entities/user.entity";
-import { Column, Entity, JoinColumn, OneToMany, OneToOne, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, OneToMany, OneToOne, ManyToOne, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn } from "typeorm";
 import { PollPreviousTitle } from "./poll-previous-title.entity";
 
 @Entity()
@@ -28,4 +28,10 @@ export class Poll {
         onDelete: 'CASCADE'
     })
     public previousTitles: PollPreviousTitle[];
+
+    @CreateDateColumn()
+    public creationDate: Date;
+
+    @Column({ default: null, nullable: true, })
+    public updateDate: Date;
 }

@@ -210,6 +210,10 @@ describe('PollController', () => {
 
         expect(editedPoll.body.title).toBe('123456');
         expect(editedPoll.body.previousTitles.length).toBe(1);
+        
+        const newTitle: any = editedPoll.body.previousTitles[0];
+        const newTitleDate = newTitle.date;
+        expect(newTitleDate).toEqual(editedPoll.body.updateDate);
     });
 
     it('Does not edit poll (silent fail) if title is the same', async () => {

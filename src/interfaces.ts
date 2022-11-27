@@ -43,6 +43,8 @@ export interface IPollBody {
         hasVoted: boolean,
         voteCount: IVoteCount[],
         voteId: number,
+        creationDate: Date,
+        updateDate: Date,
     }
 }
 

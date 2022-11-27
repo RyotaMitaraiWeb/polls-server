@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Poll } from "./poll.entity";
 
 @Entity()
@@ -13,4 +13,7 @@ export class PollPreviousTitle {
         onDelete: 'CASCADE'
     })
     public poll: Poll;
+
+    @CreateDateColumn()
+    public date: Date;
 }

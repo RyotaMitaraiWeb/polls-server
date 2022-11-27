@@ -33,7 +33,6 @@ export class PollService {
         poll.title = createPollDto.title;
         poll.description = createPollDto.description;
         poll.author = user;
-
         this.choiceService.validateChoiceArray(choicesInput);
         const choices = await this.choiceService.createChoices(choicesInput);
         poll.choices = choices;
@@ -81,6 +80,7 @@ export class PollService {
             await this.previousTitleRepository.save(previousTitle);
 
             poll.previousTitles.push(previousTitle);
+            poll.updateDate = previousTitle.date;
             return await this.pollRepository.save(poll);
         } else {
             return null;

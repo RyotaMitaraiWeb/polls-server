@@ -51,7 +51,7 @@ export class PollController {
     @Get(':id')
     async findOne(@Req() req: IRequest, @Res() res: Response, @Param('id') id: string) {
         try {
-            const { title, description, author, previousTitles } = req.poll;
+            const { title, description, author, creationDate, updateDate, previousTitles } = req.poll;
             const voteCount = this.pollService.getVoteCounts(req.poll);
 
             res.status(HttpStatus.OK).json({
@@ -59,6 +59,8 @@ export class PollController {
                 title,
                 description,
                 previousTitles,
+                creationDate,
+                updateDate,
                 author: author.username,
                 isAuthor: req.isAuthor,
                 voteCount,
