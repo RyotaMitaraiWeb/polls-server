@@ -37,11 +37,11 @@ export class UserService {
 
     async comparePasswords(user: User | null, password: string): Promise<void> {
         if (user === null) {
-            throw new HttpException('Wrong username or password', HttpStatus.UNAUTHORIZED);
+            throw new HttpException('Wrong username or password', HttpStatus.BAD_REQUEST);
         } else {
             const comparison = await bcrypt.compare(password, user.password);
             if (!comparison) {
-                throw new HttpException('Wrong username or password', HttpStatus.UNAUTHORIZED);
+                throw new HttpException('Wrong username or password', HttpStatus.BAD_REQUEST);
             }
         }
     }

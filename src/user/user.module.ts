@@ -23,7 +23,7 @@ export class UserModule implements NestModule {
             .apply(VerifyLackOfToken).forRoutes({
                 path: 'user/register', method: RequestMethod.POST,
             })
-            .apply(CheckIfLogged, VerifyToken).forRoutes({
+            .apply(CheckIfLogged).forRoutes({
                 path: 'user/isLogged', method: RequestMethod.POST,
             })
     }

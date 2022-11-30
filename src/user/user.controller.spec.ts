@@ -124,7 +124,7 @@ describe('UserController', () => {
         const login: IUserBody = await request(app.getHttpServer()).post(loginEndpoint).send({
             username: 'ryota1',
             password: '123456',
-        }).expect(HttpStatus.UNAUTHORIZED);
+        }).expect(HttpStatus.BAD_REQUEST);
     });
 
     it('Failed login due to wrong password', async () => {
@@ -136,7 +136,7 @@ describe('UserController', () => {
         const login: IUserBody = await request(app.getHttpServer()).post(loginEndpoint).send({
             username: 'ryota1',
             password: '1234567',
-        }).expect(HttpStatus.UNAUTHORIZED);
+        }).expect(HttpStatus.BAD_REQUEST);
     });
 
     it('Failed login due to a presence of a token', async () => {
@@ -190,11 +190,15 @@ describe('UserController', () => {
         const status = await request(app.getHttpServer()).post(isLoggedInEndpoint)
         .set('Authorization', token)
         .expect(HttpStatus.OK);
+
+        expect(status.body.loggedIn).toBe(true);
     });
 
     it('Successfully checks that the user is NOT logged in', async () => {
         const status = await request(app.getHttpServer()).post(isLoggedInEndpoint)
-        .expect(HttpStatus.UNAUTHORIZED);
+        .expect(HttpStatus.OK);
+
+        expect(status.body.loggedIn).toBe(false);
     });
 
     afterEach(async () => {

@@ -10,11 +10,12 @@ export class UserController {
 
     @Post('/isLogged')
     async checkIfLogged(@Req() req: IRequest, @Res() res: Response) {
-        const user = req.user;
+        const user = req?.user;
         res.status(HttpStatus.OK).json({
-            username: user.username,
-            id: user.id,
-            statusCode: HttpStatus.OK
+            username: user?.username,
+            id: user?.id,
+            statusCode: HttpStatus.OK,
+            loggedIn: req.isLogged,
         })
     }
 
