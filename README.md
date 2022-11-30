@@ -53,7 +53,7 @@ The username has to be between 5 and 15 characters and not already taken, while 
 To log in a user, send a POST request to ``/user/login`` with the same JSON as the above. A successful login yields the same response as a successful register.
 
 #### Checking for login status
-To check if a user is logged in or not, send a POST request to ``/user/isLogged`` with a token attached to the ``Authorization`` header. The server will respond with a boolean property ``loggedIn`` that indicates whether the user is logged in or not. If the user is logged in, the server also returns the user's username and id.
+To check if a user is logged in or not, send a POST request to ``/user/isLogged`` with a token attached to the ``Authorization`` header. If the token is valid (aka it's not blacklisted and is verified by the JWT service), the server will respond with the user's username and id, otherwise, it will return a rejecting response.
 
 #### Logging out a user
 To log out a user, send a DELETE request to ``/user/logout`` with their token attached to the ``Authorization`` header. The token is then blacklisted, meaning that it cannot be used in future authorized requests.

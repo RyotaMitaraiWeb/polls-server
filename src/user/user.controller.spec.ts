@@ -190,15 +190,12 @@ describe('UserController', () => {
         const status = await request(app.getHttpServer()).post(isLoggedInEndpoint)
         .set('Authorization', token)
         .expect(HttpStatus.OK);
-
-        expect(status.body.loggedIn).toBe(true);
     });
 
     it('Successfully checks that the user is NOT logged in', async () => {
         const status = await request(app.getHttpServer()).post(isLoggedInEndpoint)
-        .expect(HttpStatus.OK);
+        .expect(HttpStatus.BAD_REQUEST);
 
-        expect(status.body.loggedIn).toBe(false);
     });
 
     afterEach(async () => {
