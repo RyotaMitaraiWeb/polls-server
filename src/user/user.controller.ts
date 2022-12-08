@@ -1,25 +1,41 @@
-import { Controller, Get, Post, Body, Delete, Req, Res, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Post, Body, Delete, Req, Res, HttpStatus, Param, HttpException } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { IRequest } from '../interfaces';
 import { Response } from 'express';
+import { User } from './entities/user.entity';
 
 @Controller('user')
 export class UserController {
     constructor(private readonly userService: UserService) { }
 
-    @Post('/isLogged')
-    async checkIfLogged(@Req() req: IRequest, @Res() res: Response) {
+    @Get(':username')
+    async findUserByUsername(@Param('username') username: string, @Res() res: Response) {
+        try {
+            const user: User = await this.userService.findUserByUsername(username);
+            if (!user) {
+                throw new HttpException('User does not exist', HttpStatus.BAD_REQUEST);
+            }
+
+            res.status(HttpStatus.OK).end();
+
+        } catch (error) {
+            res.status(error.status).json(error).end();
+        }
+    }
+
+    @Post('isLogged')
+    async checkIfLogged(@Req() req: IRequest, @Res() res: Response) {        
         const user = req?.user;
         const statusCode: number = req.isLogged ? HttpStatus.OK : HttpStatus.BAD_REQUEST
         res.status(statusCode).json({
             username: user?.username,
             id: user?.id,
             statusCode,
-        })
+        });
     }
 
-    @Post('/register')
+    @Post('register')
     async create(@Res() res: Response, @Body() createUserDto: CreateUserDto) {
         try {
             const user = await this.userService.create(createUserDto);
@@ -34,7 +50,7 @@ export class UserController {
         }
     }
 
-    @Post('/login')
+    @Post('login')
     async login(@Res() res: Response, @Body() createUserDto: CreateUserDto) {
         const user = await this.userService.findUserByUsername(createUserDto.username);
 
@@ -51,7 +67,7 @@ export class UserController {
         }
     }
 
-    @Delete('/logout')
+    @Delete('logout')
     logout(@Req() req: IRequest, @Res() res: Response) {
         res.status(HttpStatus.NO_CONTENT).json({
             statusCode: HttpStatus.NO_CONTENT
