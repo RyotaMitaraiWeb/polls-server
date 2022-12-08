@@ -198,6 +198,19 @@ describe('UserController', () => {
 
     });
 
+    it(':username endpoint finds username', async () => {
+        const data: IUserBody = await request(app.getHttpServer()).post(registerEndpoint).send({
+            username: 'ryota1',
+            password: '123456',
+        });
+
+        await request(app.getHttpServer()).get('/user/' + data.body.username).expect(HttpStatus.OK);
+    });
+
+    it(':username endpoint returns 404 if username does not exist', async () => {
+        await request(app.getHttpServer()).get('/user/nonexistant').expect(HttpStatus.BAD_REQUEST);
+    })
+
     afterEach(async () => {
         await app.close();
     });
