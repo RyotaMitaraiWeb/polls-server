@@ -207,7 +207,7 @@ describe('UserController', () => {
         await request(app.getHttpServer()).get('/user/' + data.body.username).expect(HttpStatus.OK);
     });
 
-    it(':username endpoint returns 404 if username does not exist', async () => {
+    it(':username endpoint returns 400 if username does not exist', async () => {
         await request(app.getHttpServer()).get('/user/nonexistant').expect(HttpStatus.BAD_REQUEST);
     })
 
