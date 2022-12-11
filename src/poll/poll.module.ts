@@ -23,16 +23,25 @@ export class PollModule implements NestModule {
     configure(consumer: MiddlewareConsumer) {
         consumer
             .apply(CheckIfLogged, IsAuthor, HasVoted)
-            .exclude({
-                path: 'poll/all', method: RequestMethod.GET,
-            })
+            .exclude(
+                {
+                    path: 'poll/all', method: RequestMethod.GET,
+                },
+                {
+                    path: 'poll/own', method: RequestMethod.GET,
+                })
             .forRoutes({
                 path: 'poll/:id', method: RequestMethod.GET,
             })
             .apply(CheckIfLogged, VerifyToken)
-            .forRoutes({
-                path: 'poll/create', method: RequestMethod.POST,
-            })
+            .forRoutes(
+                {
+                    path: 'poll/create', method: RequestMethod.POST,
+                },
+                {
+                    path: 'poll/own', method: RequestMethod.GET,
+                }
+            )
             .apply(CheckIfLogged, VerifyToken, HasVoted, CanVote)
             .forRoutes({
                 path: 'poll/:pollId/vote/:choiceId', method: RequestMethod.POST,
@@ -40,7 +49,8 @@ export class PollModule implements NestModule {
             .apply(CheckIfLogged, VerifyToken, IsAuthor, IsAuthorized)
             .forRoutes(
                 { path: 'poll/:id/edit', method: RequestMethod.PATCH },
-                { path: 'poll/:id/delete', method: RequestMethod.DELETE }
+                { path: 'poll/:id/delete', method: RequestMethod.DELETE },
+                { path: 'poll/:id/isAuthor', method: RequestMethod.GET },
             )
     }
 }

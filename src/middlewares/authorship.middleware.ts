@@ -15,13 +15,13 @@ export class IsAuthor implements NestMiddleware {
         try {
             const user: DecodedToken = req.user;
             const userId: number = user?.id;
-            const pollId: number = Number(req.params.id);            
+            const pollId: number = Number(req.params.id);
             const poll = await this.pollService.findPollById(pollId);
-            
+
             req.isAuthor = poll?.author?.id === userId;
             req.poll = poll;
             next();
-        } catch (error) {            
+        } catch (error) {
             res.status(error.status).json(error).end();
         }
     }

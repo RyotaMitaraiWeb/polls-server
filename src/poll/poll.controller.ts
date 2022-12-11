@@ -48,6 +48,18 @@ export class PollController {
         return await this.pollService.search(searchText);
     }
 
+    @Get('own')
+    async getUserPolls(@Req() req: IRequest, @Res() res: Response) {
+        const id = req.user.id;
+        const polls = await this.pollService.getUserPolls(id);
+        res.status(HttpStatus.OK).json(polls).end();
+    }
+
+    @Get(':id/isAuthor')
+    async isAuthor(@Res() res: Response) {
+        res.status(HttpStatus.OK).end();
+    }
+
     @Get(':id')
     async findOne(@Req() req: IRequest, @Res() res: Response, @Param('id') id: string) {
         try {

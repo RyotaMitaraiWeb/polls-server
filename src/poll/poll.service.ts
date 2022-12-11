@@ -21,6 +21,9 @@ export class PollService {
     @InjectRepository(PollPreviousTitle)
     private readonly previousTitleRepository: Repository<PollPreviousTitle>;
 
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>;
+
     constructor(
         private readonly userService: UserService,
         private readonly choiceService: ChoiceService,
@@ -126,6 +129,20 @@ export class PollService {
             },
         });
 
+        return polls;
+    }
+
+    async getUserPolls(userId: number) {
+        const user = await this.userRepository.findOne({
+            where: {
+                id: userId
+            },
+            relations: {
+                polls: true,
+            }
+        });
+
+        const polls = user.polls;
         return polls;
     }
 }
